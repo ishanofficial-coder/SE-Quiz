@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Object-Oriented Programming & Software Engineering Practice Quiz</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --correct: #16a34a;
+      --correct-bg: #dcfce7;
+      --incorrect: #dc2626;
+      --incorrect-bg: #fee2e2;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    .quiz-container {
+      background-color: var(--card-bg);
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 800px;
+      padding: 2rem;
+    }
+
+    header {
+      margin-bottom: 1.5rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .meta-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background-color: var(--border);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background-color: var(--primary);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .question-card {
+      margin-bottom: 1.5rem;
+    }
+
+    .question-text {
+      font-size: 1.125rem;
+      font-weight: 600;
+      line-height: 1.5;
+      margin-bottom: 1.25rem;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .option-btn {
+      background-color: #ffffff;
+      border: 1.5px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 0.875rem 1.25rem;
+      text-align: left;
+      font-size: 0.975rem;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+      background-color: #eef2ff;
+    }
+
+    .option-btn:disabled {
+      cursor: default;
+    }
+
+    .option-btn.correct {
+      background-color: var(--correct-bg) !important;
+      border-color: var(--correct) !important;
+      color: var(--correct) !important;
+      font-weight: 600;
+    }
+
+    .option-btn.incorrect {
+      background-color: var(--incorrect-bg) !important;
+      border-color: var(--incorrect) !important;
+      color: var(--incorrect) !important;
+      font-weight: 600;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 1.5rem;
+    }
+
+    .btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn:disabled {
+      background-color: var(--border);
+      cursor: not-allowed;
+    }
+
+    .summary-screen {
+      text-align: center;
+      padding: 1rem 0;
+    }
+
+    .summary-screen h2 {
+      font-size: 1.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .score-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: #eef2ff;
+      border: 4px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 1.5rem auto;
+    }
+
+    .hide {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-container">
+    <!-- Active Quiz Screen -->
+    <div id="quiz-screen">
+      <header>
+        <h1>OOP & Software Engineering Practice Exam</h1>
+        <div class="meta-info">
+          <span id="question-counter">Question 1 of 100</span>
+          <span id="score-counter">Score: 0</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+      </header>
+
+      <main class="question-card">
+        <div class="question-text" id="question-text">Loading question...</div>
+        <div class="options-grid" id="options-container">
+          <!-- Options rendered via JS -->
+        </div>
+      </main>
+
+      <footer class="controls">
+        <button class="btn" id="next-btn" onclick="nextQuestion()" disabled>Next Question</button>
+      </footer>
+    </div>
+
+    <!-- Final Summary Screen -->
+    <div id="summary-screen" class="summary-screen hide">
+      <h2>Quiz Completed!</h2>
+      <p>Here is your final performance summary:</p>
+      <div class="score-circle" id="final-score">0 / 100</div>
+      <p id="feedback-text" style="margin-bottom: 1.5rem; color: var(--text-muted);"></p>
+      <button class="btn" onclick="restartQuiz()">Restart Quiz</button>
+    </div>
+  </div>
+
+  <script>
+    const rawQuestions = [
+      {
+        q: "What is Object-Oriented Programming (OOP) primarily based on?",
+        options: ["Classes and objects", "Functions and procedures", "Sequential instructions and jumps", "Relational database tables"],
+        answer: 0
+      },
+      {
+        q: "What is a class analogous to when creating objects?",
+        options: ["A blueprint or template", "A physical instance", "An execution log", "A database record"],
+        answer: 0
+      },
+      {
+        q: "How is an object defined in relation to a class?",
+        options: ["An instance of a class", "A superclass container", "A static method", "A visibility modifier"],
+        answer: 0
+      },
+      {
+        q: "What is an attribute within a class?",
+        options: ["A data value held by an object", "A function performed by the system", "A relationship connector", "A test plan parameter"],
+        answer: 0
+      },
+      {
+        q: "How is a behavior (or operation) defined in OOP?",
+        options: ["A function performed by an object or a service given by it", "A unique identification number", "A fixed data constant", "An inheritance boundary"],
+        answer: 0
+      },
+      {
+        q: "Which of the following represents the four core pillars of OOP?",
+        options: ["Encapsulation, Inheritance, Polymorphism, Abstraction", "Compilation, Execution, Testing, Documentation", "Association, Aggregation, Composition, Multiplicity", "Actors, Use Cases, Boundaries, Communications"],
+        answer: 0
+      },
+      {
+        q: "What does inheritance signify when a child object is created from a class?",
+        options: ["The object inherits all characteristics and properties of its class", "The object hides its internal attributes", "The object runs multiple operations simultaneously", "The object destroys its parent container"],
+        answer: 0
+      },
+      {
+        q: "What is a superclass also commonly referred to as?",
+        options: ["Base class or parent class", "Derived class or child class", "Subclass or extended class", "Associated interface class"],
+        answer: 0
+      },
+      {
+        q: "What is a class derived from another class called?",
+        options: ["Subclass, derived class, extended class, or child class", "Superclass or base class", "Static container class", "Abstract prototype class"],
+        answer: 0
+      },
+      {
+        q: "What is the primary definition of data encapsulation?",
+        options: ["Binding or wrapping code and data together into a single unit to protect them", "Exposing all internal variables to external programs", "Inheriting attributes from multiple superclasses", "Translating diagrams into machine code"],
+        answer: 0
+      },
+      {
+        q: "What real-world object is commonly used to illustrate encapsulation in lectures?",
+        options: ["A medical capsule containing medicine", "A house blueprint", "An ATM machine interface", "A car driving on a road"],
+        answer: 0
+      },
+      {
+        q: "What is polymorphism?",
+        options: ["The ability of an object to take on many forms", "The complete hiding of internal attributes", "The physical destruction of child objects", "The step-by-step verification of source code"],
+        answer: 0
+      },
+      {
+        q: "Which everyday action demonstrates polymorphism where the same operation name ('open') is used differently?",
+        options: ["Opening a door, a window, or a newspaper", "Depositing money into an ATM", "Running unit tests on a function", "Inheriting student properties from a person class"],
+        answer: 0
+      },
+      {
+        q: "What is the primary purpose of abstraction in OOP?",
+        options: ["Exposing only essential features while hiding internal implementation details", "Making every line of source code visible to end users", "Creating multiple identical child instances", "Defining strict database relationships"],
+        answer: 0
+      },
+      {
+        q: "Which devices are classic examples used to explain abstraction?",
+        options: ["An ATM and a coffee machine", "A capsule and a pill", "A parent and a child", "A rectangle and a triangle"],
+        answer: 0
+      },
+      {
+        q: "How do objects collaborate and work together in an OOP system?",
+        options: ["By sending messages to one another", "By sharing private attributes directly without permission", "By deleting each other's classes", "By executing black-box test plans"],
+        answer: 0
+      },
+      {
+        q: "What does multiplicity (cardinality) indicate in class associations?",
+        options: ["The number of objects in one class related to a single object of an associated class", "The execution time of a method", "The level of visibility of an attribute", "The number of bugs found during unit testing"],
+        answer: 0
+      },
+      {
+        q: "What type of multiplicity relationship exists between a Driver and a License?",
+        options: ["One-to-One (1 to 1)", "One-to-Many (1 to *)", "Many-to-Many (* to *)", "Zero-to-Zero"],
+        answer: 0
+      },
+      {
+        q: "What type of relationship exists between a Course and a Lecturer where one course is taught by a lecturer?",
+        options: ["One-to-Many or Association", "One-to-One composition", "Independent aggregation", "Anonymous abstraction"],
+        answer: 0
+      },
+      {
+        q: "What is aggregation (\"Has-a\" relationship)?",
+        options: ["A specialized form of association where each object has its own independent lifecycle", "A strict relationship where the child cannot exist without the parent", "A method for overriding superclass operations", "A black-box testing procedure"],
+        answer: 0
+      },
+      {
+        q: "In aggregation, if an employee's department is deleted, what happens to the employee object?",
+        options: ["The employee object lives on and is not destroyed", "The employee object is automatically deleted", "The employee object converts into a class", "The system crashes"],
+        answer: 0
+      },
+      {
+        q: "What is composition?",
+        options: ["A restricted/stronger form of aggregation where the child cannot exist without the parent container", "A weak association between independent systems", "An open-source documentation standard", "A type of user acceptance testing"],
+        answer: 0
+      },
+      {
+        q: "If a house is destroyed and all its rooms cease to exist, what relationship does this illustrate?",
+        options: ["Composition", "Aggregation", "Polymorphism", "Inheritance"],
+        answer: 0
+      },
+      {
+        q: "Which human body parts are examples of composition when related to a Human?",
+        options: ["Heart, lungs, brain, and kidneys", "Clothes, shoes, and accessories", "Friends and colleagues", "Degrees and certificates"],
+        answer: 0
+      },
+      {
+        q: "What does UML stand for?",
+        options: ["Unified Modeling Language", "Universal Method Logic", "User Management Link", "Unified Machine Language"],
+        answer: 0
+      },
+      {
+        q: "Which organization created UML, proposing its 1.0 specification draft in January 1997?",
+        options: ["Object Management Group (OMG)", "World Wide Web Consortium (W3C)", "IEEE Standards Association", "International Organization for Standardization (ISO)"],
+        answer: 0
+      },
+      {
+        q: "What do use case diagrams depict in software engineering?",
+        options: ["Interactions between users (actors) and a system", "Internal memory allocation of classes", "Source code compilation errors", "Physical server deployment topologies"],
+        answer: 0
+      },
+      {
+        q: "How are actors typically represented in a use case diagram?",
+        options: ["As stick figures or labeled blocks outside the system boundary", "As ovals inside the system", "As diamond connectors", "As square database tables"],
+        answer: 0
+      },
+      {
+        q: "How are use cases depicted within a system boundary?",
+        options: ["As ovals with descriptive names", "As stick figures", "As underlined code methods", "As rectangular packages"],
+        answer: 0
+      },
+      {
+        q: "What do lines (associations) connecting actors to use cases represent?",
+        options: ["Communications / interactions", "Composition lifecycles", "Inheritance hierarchies", "Private data variables"],
+        answer: 0
+      },
+      {
+        q: "What does a system boundary represent in a use case diagram?",
+        options: ["The boundary between the system and its external actors or systems", "The physical casing of a computer server", "The encrypted password storage", "The execution timeout limit"],
+        answer: 0
+      },
+      {
+        q: "In a class diagram, what are the three standard compartments of a class box?",
+        options: ["Class Name, Attributes, and Operations (Methods)", "Input, Process, and Output", "Superclass, Subclass, and Instance", "Actor, Boundary, and Use Case"],
+        answer: 0
+      },
+      {
+        q: "What does a minus sign (-) preceding an attribute in a class diagram denote?",
+        options: ["Private visibility", "Public visibility", "Protected inheritance", "Static method"],
+        answer: 0
+      },
+      {
+        q: "What does a plus sign (+) preceding an operation in a class diagram denote?",
+        options: ["Public visibility", "Private visibility", "Deleted status", "Abstract requirement"],
+        answer: 0
+      },
+      {
+        q: "What is a generalization relationship in a class diagram used for?",
+        options: ["Representing an 'is-a' or 'is-a-kind-of' inheritance relationship between general and specialized classes", "Showing physical containment of rooms in a building", "Connecting independent actors to use cases", "Executing white-box test suites"],
+        answer: 0
+      },
+      {
+        q: "In the bank account generalization example, which classes specialize from the Bank Account superclass?",
+        options: ["Current Account, Saving Account, and Credit Account", "Patient, Doctor, and Department", "Book, Member, and Genre", "Hard Disk and Monitor"],
+        answer: 0
+      },
+      {
+        q: "What is the primary definition of software testing?",
+        options: ["A method to check whether actual software matches expected requirements and is defect-free", "The process of writing HTML documentation for users", "Designing UML class inheritance hierarchies", "Managing project timelines in ClickUp"],
+        answer: 0
+      },
+      {
+        q: "What is the main purpose of unit testing?",
+        options: ["Testing individual units or components (functions, methods, classes) independently", "Testing the entire fully integrated software product as a whole", "Examining software behavior from an end-user perspective without code", "Checking hardware durability"],
+        answer: 0
+      },
+      {
+        q: "Who typically performs unit testing?",
+        options: ["Programmers", "End users", "External auditors", "Technical writers"],
+        answer: 0
+      },
+      {
+        q: "What level of knowledge is required for unit testing?",
+        options: ["Detailed knowledge of internal program design and code", "Zero knowledge of code", "Only high-level specification documents", "Physical maintenance certification"],
+        answer: 0
+      },
+      {
+        q: "What is black-box testing?",
+        options: ["Examining whether software works for end-users as intended without looking at internal code", "Testing every single loop and branch inside the source code", "Writing internal documentation comments", "Deploying applications via GitHub Pages"],
+        answer: 0
+      },
+      {
+        q: "In black-box testing, how are test data selected?",
+        options: ["Based on program specifications and requirements, not internal code logic", "Based on internal code path coverage and loops", "Exclusively by programmers using compilers", "By analyzing RAM usage"],
+        answer: 0
+      },
+      {
+        q: "What is white-box testing?",
+        options: ["Testing where the program's internal logic and code paths are visible and tested by programmers", "Testing software purely through the user interface without source code", "Checking network cable connectivity", "Reviewing user manuals"],
+        answer: 0
+      },
+      {
+        q: "Who typically performs white-box testing due to its complexity?",
+        options: ["Highly-skilled programmers / developers", "Non-technical end users", "System administrators", "Project managers"],
+        answer: 0
+      },
+      {
+        q: "What is system testing?",
+        options: ["Testing the entire and fully integrated software application as a whole for requirement compliance", "Testing a single isolated function or method", "Checking internal variable names", "Writing UML use case ovals"],
+        answer: 0
+      },
+      {
+        q: "According to testing guidelines, what is someone doing if they carry out a test without describing the expected outcome first?",
+        options: ["Experimenting, not testing", "Executing a valid unit test", "Performing black-box validation", "Validating encapsulation"],
+        answer: 0
+      },
+      {
+        q: "Which of the following must be included in a complete test description (test plan)?",
+        options: ["Identity of component, purpose, conditions, test data, expected outcome, and actual outcome", "Only the programmer's name and login password", "The computer brand and operating system version", "The UML class diagram multiplicity"],
+        answer: 0
+      },
+      {
+        q: "What are the two main categories of people interested in program documentation?",
+        options: ["Programmers and Users", "Actors and Administrators", "Customers and Suppliers", "Testers and Analysts"],
+        answer: 0
+      },
+      {
+        q: "What does internal documentation for programmers cover?",
+        options: ["Meaningful data/procedure names, comments, and clean style/formatting in the source code", "External manuals stored in printed binders", "User login credentials", "System test execution logs"],
+        answer: 0
+      },
+      {
+        q: "What does external documentation for programmers include?",
+        options: ["Current source program listing, program specification, and formula/calculation explanations", "Bullet points for end users", "Drag-and-drop website templates", "Use case stick figures"],
+        answer: 0
+      },
+      {
+        q: "What is the primary goal of user documentation?",
+        options: ["To guide users in interacting with the program effectively, focusing on functionality and usability", "To explain complex code algorithms and syntax loops to developers", "To detail database table foreign keys", "To outline white-box testing paths"],
+        answer: 0
+      },
+      {
+        q: "What is ClickUp used for in software development?",
+        options: ["An all-in-one productivity and project management platform for planning and workflows", "A programming language compiler", "An automated white-box testing tool", "A database management system"],
+        answer: 0
+      },
+      {
+        q: "What is ClickUp AI (now updated as ClickUp Brain) capable of doing?",
+        options: ["Turning a single prompt into finished work like slides, dashboards, emails, and full workflows", "Writing raw C++ machine code automatically", "Executing unit tests on physical hardware", "Generating UML use case ovals"],
+        answer: 0
+      },
+      {
+        q: "In object-oriented design, what is an instance variable or data field often called?",
+        options: ["An attribute", "An operation", "A boundary", "An actor"],
+        answer: 0
+      },
+      {
+        q: "Which UML diagram type shows static structural relationships like classes, attributes, and methods?",
+        options: ["Class Diagram", "Use Case Diagram", "Activity Diagram", "Sequence Diagram"],
+        answer: 0
+      },
+      {
+        q: "When an object of one class 'has-a' another object with independent lifecycles, what is the relationship?",
+        options: ["Aggregation", "Composition", "Generalization", "Multiplicity"],
+        answer: 0
+      },
+      {
+        q: "When an object contains another object and the child cannot exist without the parent, what is it called?",
+        options: ["Composition", "Aggregation", "Association", "Polymorphism"],
+        answer: 0
+      },
+      {
+        q: "Which testing technique focuses purely on functional behavior without knowing internal code?",
+        options: ["Black Box Testing", "White Box Testing", "Unit Testing", "Glass Box Testing"],
+        answer: 0
+      },
+      {
+        q: "Which testing technique examines internal logic, loops, and branches?",
+        options: ["White Box Testing", "Black Box Testing", "System Testing", "User Acceptance Testing"],
+        answer: 0
+      },
+      {
+        q: "What does a multiplicity notation of '1..*' mean in a class diagram?",
+        options: ["One to many (at least one)", "Zero to one", "Exactly one", "Many to many"],
+        answer: 0
+      },
+      {
+        q: "Which term describes a class from which other subclasses inherit attributes and operations?",
+        options: ["Superclass / Base class", "Subclass / Derived class", "Instance object", "Anonymous module"],
+        answer: 0
+      },
+      {
+        q: "What is the benefit of using meaningful names and comments inside source code?",
+        options: ["Serves as internal documentation for programmers", "Acts as a black-box test plan", "Improves web browser rendering speed", "Replaces the need for UML diagrams"],
+        answer: 0
+      },
+      {
+        q: "Why is user documentation written with a focus on usability rather than technical intricacies?",
+        options: ["So users can learn how to use the software effectively", "So programmers can debug syntax errors", "To test internal code branches", "To compile source files into bytecode"],
+        answer: 0
+      },
+      {
+        q: "What does an ATM use case diagram typically include as functionalities (use cases)?",
+        options: ["Check balance, deposit funds, withdraw cash, and transfer funds", "Compile source code and run unit tests", "Manage employee payroll and leave", "Add and update book catalogues"],
+        answer: 0
+      },
+      {
+        q: "In a library management system use case, what can library members do?",
+        options: ["Borrow books, return books, and reserve books", "Perform maintenance and repairs", "Add and update books in the catalogue", "Generate system reports for all books"],
+        answer: 0
+      },
+      {
+        q: "In a library management system, what can the librarian do?",
+        options: ["Add books, update books in the catalogue, and get a report of all books", "Borrow and reserve books as members", "Manage bank accounts and ATM cash", "Perform white-box testing"],
+        answer: 0
+      },
+      {
+        q: "What attributes identify a Patient in the hospital management system example?",
+        options: ["Patient ID, patient name, date of birth, contact number, and address", "Doctor ID, specialization, and department", "ISBN number, book name, author, and genre", "Account number, date opened, and balance"],
+        answer: 0
+      },
+      {
+        q: "What attributes identify a Doctor in the hospital management system?",
+        options: ["Doctor ID, doctor name, specialization, and contact number", "Patient ID and medical reports", "Department ID and department name", "Course code and credit hours"],
+        answer: 0
+      },
+      {
+        q: "What is the relationship between a Doctor and a Department in the hospital system?",
+        options: ["Each doctor belongs to one department, and one department can have many doctors", "Many doctors belong to many departments symmetrically", "Doctors and departments have a composition lifecycle", "Departments inherit patient records"],
+        answer: 0
+      },
+      {
+        q: "How are members identified in the library management system?",
+        options: ["Member ID, member name, date of birth, contact number, and address", "ISBN number and author name", "Patient ID and diagnosis", "Employee number and designation"],
+        answer: 0
+      },
+      {
+        q: "How are books identified in the library management system?",
+        options: ["ISBN number, book name, author, and genre", "Member ID and contact number", "Department ID and name", "Transaction ID and balance"],
+        answer: 0
+      },
+      {
+        q: "What is the relationship between a Book and a Genre in the library system?",
+        options: ["Each book has a genre, and a genre can have many books", "One book can have many genres", "Genres inherit book authors", "Genres are composed of members"],
+        answer: 0
+      },
+      {
+        q: "What feature does a Car class diagram example include for methods/operations?",
+        options: ["start(), stop(), and drive(speed)", "make, model, and year", "accountNo and balance", "register() and attend()"],
+        answer: 0
+      },
+      {
+        q: "Which object-oriented concept allows subclasses to share common behavior and attributes from a superclass?",
+        options: ["Inheritance", "Encapsulation", "Abstraction", "Aggregation"],
+        answer: 0
+      },
+      {
+        q: "What does the term 'is-a' refer to in object-oriented design?",
+        options: ["Generalization / Inheritance", "Composition", "Association multiplicity", "Black-box testing"],
+        answer: 0
+      },
+      {
+        q: "What does the term 'has-a' refer to in object-oriented design?",
+        options: ["Aggregation or Composition", "Inheritance", "Generalization", "Polymorphism"],
+        answer: 0
+      },
+      {
+        q: "When logging into an email account like Gmail, what OOP concept is demonstrated by backend password encryption and verification hidden from the user?",
+        options: ["Encapsulation", "Inheritance", "Multiplicity", "Aggregation"],
+        answer: 0
+      },
+      {
+        q: "Why is a test plan required before executing tests?",
+        options: ["To clearly describe components, conditions, test data, and expected outcomes", "To write internal code comments", "To compile UML diagrams into source code", "To replace user documentation"],
+        answer: 0
+      },
+      {
+        q: "What is an actor in UML use case modeling?",
+        options: ["A user or external system interacting with the system", "An internal Java method or class", "A database foreign key", "A test plan parameter"],
+        answer: 0
+      },
+      {
+        q: "Which of the following is an example of an actor in an ATM system?",
+        options: ["Customer, Bank, and Technician", "Cash and Receipt", "Balance and Deposit", "Savings and Checking"],
+        answer: 0
+      },
+      {
+        q: "What is the primary role of a Product superclass in the class diagram hierarchy example?",
+        options: ["Holding common attributes (Product No, Description, Price) shared by Hard Disk and Monitor subclasses", "Executing black-box testing on orders", "Managing user login credentials", "Providing drag-and-drop website templates"],
+        answer: 0
+      },
+      {
+        q: "In an Order and Customer association, what multiplicity is shown on the Customer side?",
+        options: ["1 (Mandatory)", "n (Many-valued)", "* (Zero or more)", "0..1"],
+        answer: 0
+      },
+      {
+        q: "In an Order and Customer association, what multiplicity is shown on the Order side?",
+        options: ["n (Many-valued)", "1 (Mandatory)", "0", "1..1"],
+        answer: 0
+      },
+      {
+        q: "Which OOP concept is illustrated when a Shape superclass has subclasses Rectangle, Triangle, and Circle?",
+        options: ["Polymorphism / Generalization", "Composition", "Encapsulation", "Message passing"],
+        answer: 0
+      },
+      {
+        q: "What type of relationship is depicted by a diamond symbol on the container side with a hollow diamond?",
+        options: ["Aggregation", "Composition", "Association", "Generalization"],
+        answer: 0
+      },
+      {
+        q: "What type of relationship is depicted by a diamond symbol on the container side with a solid (filled) diamond?",
+        options: ["Composition", "Aggregation", "Generalization", "Association"],
+        answer: 0
+      },
+      {
+        q: "What is the main advantage of using AI planning tools like ClickUp Brain in software development?",
+        options: ["Turning prompts into finished work, slides, dashboards, emails, and full workflows", "Writing compiled machine binaries directly", "Executing automated unit tests without code", "Rendering HTML pages in web browsers"],
+        answer: 0
+      },
+      {
+        q: "Which document defines the purpose and mode of operation of a program for programmers?",
+        options: ["Program specification", "User manual", "Test plan actual outcome", "UML stick figure guide"],
+        answer: 0
+      },
+      {
+        q: "What does unit testing focus on that system testing does not?",
+        options: ["The smallest testable parts of code (functions, methods, classes) independently", "The entire integrated software product as a whole", "End-user satisfaction and black-box inputs", "Project management planning in ClickUp"],
+        answer: 0
+      },
+      {
+        q: "In a class diagram, what does an operation with signature `+drive(in speed: int): void` indicate?",
+        options: ["A public method named drive that takes an integer speed parameter and returns nothing", "A private attribute of type int", "A composition relationship", "A black-box test case"],
+        answer: 0
+      },
+      {
+        q: "What is the main difference between aggregation and composition?",
+        options: ["In aggregation, child objects can exist independently; in composition, child objects cannot exist without the parent.", "Aggregation is used for databases; composition is used for HTML.", "Aggregation requires white-box testing; composition requires black-box testing.", "There is no difference; they are identical terms."],
+        answer: 0
+      },
+      {
+        q: "Why are comments and formatting important in internal programmer documentation?",
+        options: ["They help future programmers understand, update, and maintain software easily", "They are required by web browsers to render pages", "They execute automated test cases", "They serve as user manuals"],
+        answer: 0
+      },
+      {
+        q: "What is the primary role of a software tester in black-box testing?",
+        options: ["Observing system behavior entirely through inputs and outputs based on specifications", "Examining internal code paths and loops", "Writing system requirements", "Compiling source files"],
+        answer: 0
+      },
+      {
+        q: "What does a Student subclass inherit from a Person superclass in the provided UML example?",
+        options: ["Attributes (Name, Height, Weight, Age) and methods (Eat, Sleep, Read)", "Regno, Course, and Marks", "Empno, Department, and Designation", "Account balance and interest rate"],
+        answer: 0
+      },
+      {
+        q: "What does an Employee subclass inherit from a Person superclass?",
+        options: ["Attributes (Name, Height, Weight, Age) and methods (Eat, Sleep, Read)", "Student registration number", "Book borrowing privileges", "Bank account transactions"],
+        answer: 0
+      },
+      {
+        q: "Which UML symbol represents generalization (inheritance) pointing from subclass to superclass?",
+        options: ["A hollow triangular arrowhead", "A solid diamond", "A hollow diamond", "A stick figure"],
+        answer: 0
+      },
+      {
+        q: "What is the purpose of specifying 'Actual Outcome' in a test plan?",
+        options: ["To compare against the expected outcome and determine if the test passed or failed", "To generate automated code comments", "To calculate employee salaries", "To define database multiplicity"],
+        answer: 0
+      },
+      {
+        q: "Which platform is referenced as an all-in-one productivity and project management platform with AI capabilities?",
+        options: ["ClickUp", "GitHub Pages", "Netscape", "FileZilla"],
+        answer: 0
+      },
+      {
+        q: "What best describes the relationship between a Man and his Wife, Son, Daughter, and Pet in aggregation terms?",
+        options: ["Aggregation (Man has-a pet/son/daughter/wife, and they have independent life cycles)", "Composition (They cannot exist without the man)", "Generalization (They inherit man's attributes)", "Black-box testing"],
+        answer: 0
+      }
+    ];
+
+    // Shuffle options dynamically and keep track of answer
+    let questions = rawQuestions.map(item => {
+      let opts = [...item.options];
+      let correctText = opts[item.answer];
+      // Fisher-Yates shuffle options
+      for (let i = opts.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [opts[i], opts[j]] = [opts[j], opts[i]];
+      }
+      return {
+        q: item.q,
+        options: opts,
+        answer: opts.indexOf(correctText)
+      };
+    });
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let answered = false;
+
+    const questionTextEl = document.getElementById("question-text");
+    const optionsContainerEl = document.getElementById("options-container");
+    const questionCounterEl = document.getElementById("question-counter");
+    const scoreCounterEl = document.getElementById("score-counter");
+    const progressBarEl = document.getElementById("progress-bar");
+    const nextBtn = document.getElementById("next-btn");
+
+    function loadQuestion() {
+      answered = false;
+      nextBtn.disabled = true;
+
+      const qData = questions[currentQuestionIndex];
+      questionTextEl.textContent = `${currentQuestionIndex + 1}. ${qData.q}`;
+      
+      questionCounterEl.textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+      scoreCounterEl.textContent = `Score: ${score}`;
+      
+      const progressPercent = ((currentQuestionIndex) / questions.length) * 100;
+      progressBarEl.style.width = `${progressPercent}%`;
+
+      optionsContainerEl.innerHTML = "";
+
+      const optionLabels = ["A", "B", "C", "D"];
+
+      qData.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.innerHTML = `<strong>${optionLabels[idx]}&nbsp;&nbsp;</strong> ${escapeHtml(opt)}`;
+        btn.onclick = () => selectOption(idx);
+        optionsContainerEl.appendChild(btn);
+      });
+    }
+
+    function selectOption(selectedIndex) {
+      if (answered) return;
+      answered = true;
+
+      const qData = questions[currentQuestionIndex];
+      const buttons = optionsContainerEl.querySelectorAll(".option-btn");
+
+      buttons.forEach(btn => btn.disabled = true);
+
+      if (selectedIndex === qData.answer) {
+        buttons[selectedIndex].classList.add("correct");
+        score++;
+        scoreCounterEl.textContent = `Score: ${score}`;
+      } else {
+        buttons[selectedIndex].classList.add("incorrect");
+        buttons[qData.answer].classList.add("correct");
+      }
+
+      nextBtn.disabled = false;
+    }
+
+    function nextQuestion() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        loadQuestion();
+      } else {
+        showSummary();
+      }
+    }
+
+    function showSummary() {
+      document.getElementById("quiz-screen").classList.add("hide");
+      document.getElementById("summary-screen").classList.remove("hide");
+      
+      const scoreCircle = document.getElementById("final-score");
+      scoreCircle.textContent = `${score} / ${questions.length}`;
+
+      const feedback = document.getElementById("feedback-text");
+      const percentage = (score / questions.length) * 100;
+
+      if (percentage >= 85) {
+        feedback.textContent = "Outstanding performance! You have fully mastered OOP and Software Engineering concepts.";
+      } else if (percentage >= 70) {
+        feedback.textContent = "Great job! You demonstrate a solid understanding of the principles.";
+      } else if (percentage >= 50) {
+        feedback.textContent = "Good effort! Review the notes on UML and testing to improve further.";
+      } else {
+        feedback.textContent = "Keep practicing! Re-read the chapters on OOP pillars and UML diagrams and try again.";
+      }
+    }
+
+    function restartQuiz() {
+      currentQuestionIndex = 0;
+      score = 0;
+      document.getElementById("summary-screen").classList.add("hide");
+      document.getElementById("quiz-screen").classList.remove("hide");
+      loadQuestion();
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // Initialize Quiz
+    loadQuestion();
+  </script>
+</body>
+</html>
